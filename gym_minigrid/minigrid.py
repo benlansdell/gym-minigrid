@@ -48,7 +48,11 @@ OBJECT_TO_IDX = {
     'key'           : 5,
     'ball'          : 6,
     'box'           : 7,
-    'goal'          : 8
+    'goal'          : 8,
+    'blockgoal'     : 9,
+    'block'         : 10,
+    'agent'         : 11,
+    'other'         : 12
 }
 
 IDX_TO_OBJECT = dict(zip(OBJECT_TO_IDX.values(), OBJECT_TO_IDX.keys()))
@@ -91,12 +95,19 @@ class WorldObj:
         """Can the agent pick this up?"""
         return False
 
+    def can_move(self):
+        return False
+
     def can_contain(self):
         """Can this contain another object?"""
         return False
 
     def see_behind(self):
         """Can the agent see behind this object?"""
+        return True
+
+    def visible(self):
+        """Is the object visible by the agent?"""
         return True
 
     def toggle(self, env, pos):
@@ -379,8 +390,8 @@ class Grid:
         return False
 
     def __eq__(self, other):
-        grid1 = self.encode()
-        grid2 = other.encode()
+        grid1 = self.encode(render_invisible = True)
+        grid2 = other.encode(render_invisible = True)
         return np.array_equal(grid2, grid1)
 
     def __ne__(self, other):
@@ -505,7 +516,7 @@ class Grid:
 
         r.pop()
 
-    def encode(self):
+    def encode(self, render_invisible = False, agent_pos = None):
         """
         Produce a compact numpy encoding of the grid
         """
@@ -522,11 +533,18 @@ class Grid:
                 if v == None:
                     continue
 
+                if not v.visible() and not render_invisible:
+                    continue
+
                 array[i, j, 0] = OBJECT_TO_IDX[v.type]
                 array[i, j, 1] = COLOR_TO_IDX[v.color]
 
                 if hasattr(v, 'is_open') and v.is_open:
                     array[i, j, 2] = 1
+
+        if agent_pos is not None:
+            array[agent_pos[0], agent_pos[0], 0] = OBJECT_TO_IDX['agent']
+            array[agent_pos[0], agent_pos[0], 1] = COLOR_TO_IDX['blue']            
 
         return array
 
@@ -638,7 +656,6 @@ class MiniGridEnv(gym.Env):
         drop = 4
         # Toggle/activate an object
         toggle = 5
-
         # Done completing task
         done = 6
 

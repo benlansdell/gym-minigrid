@@ -24,6 +24,9 @@ def main():
     # Load the gym environment
     env = gym.make(options.env_name)
 
+    #env_name = 'MiniGrid-Empty-8x8-v0'
+    #env = gym.make(env_name)
+
     def resetEnv():
         env.reset()
         if hasattr(env, 'mission'):
