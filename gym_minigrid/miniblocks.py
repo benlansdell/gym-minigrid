@@ -66,10 +66,10 @@ class MiniBlocksEnv(MiniGridEnv):
     * Actions are in cardinal directions
     * Hide block goal location
     * Add agent tokens to observation
+    * Add block objects that yield reward when reach block goal location
+    * Blocks can be pushed around by self
 
-    * Blocks can be pushed around by self and others
-
-    * Add block objects that yield reward when reach goal location
+    * Blocks can be pushed around by others
     """
 
     # Enumeration of possible actions
@@ -123,6 +123,14 @@ class MiniBlocksEnv(MiniGridEnv):
         # Initialize the state
         self.reset()
 
+    @property
+    def front2_pos(self):
+        """
+        Get the position of the cell that is right in front of the agent
+        """
+
+        return self.agent_pos + self.dir_vec + self.dir_vec
+
     def gen_grid(self):
         if not self.see_through_walls:
             vis_mask = self.grid.process_vis(agent_pos=(AGENT_VIEW_SIZE // 2 , AGENT_VIEW_SIZE - 1))
@@ -144,6 +152,9 @@ class MiniBlocksEnv(MiniGridEnv):
         }
         return obs
 
+    def _blockreward(self):
+        return 1 - 0.9 * (self.step_count / self.max_steps)
+
     def step(self, action):
         self.step_count += 1
         reward = 0
@@ -157,11 +168,37 @@ class MiniBlocksEnv(MiniGridEnv):
             fwd_pos = self.front_pos
             # Get the contents of the cell in front of the agent
             fwd_cell = self.grid.get(*fwd_pos)
+
             if fwd_cell == None or fwd_cell.can_overlap():
                 self.agent_pos = fwd_pos
+
+            # Agent-block interactions
+            if fwd_cell != None and fwd_cell.type == 'block':
+                # Get the position 2 in front of the agent
+                fwd2_pos = self.front2_pos
+                # Get the contents of the cell 2 in front of the agent
+                fwd2_cell = self.grid.get(*fwd2_pos)
+                # Move the block forward if can do so
+                if fwd2_cell == None:
+                    self.grid.set(*fwd2_pos, fwd_cell)
+                    self.grid.set(*fwd_pos, None)
+                    # Move the agent forward
+                    self.agent_pos = fwd_pos
+                #Check if moved block to a block goal location
+                if fwd2_cell != None and fwd2_cell.type == 'blockgoal':
+                    print("Reached block goal")
+                    self.grid.set(*fwd2_pos, fwd_cell)
+                    self.grid.set(*fwd_pos, None)
+                    # Move the agent forward
+                    self.agent_pos = fwd_pos
+                    done = True
+                    reward = self._blockreward()
+
+            #Agent-goal interactions
             if fwd_cell != None and fwd_cell.type == 'goal':
                 done = True
                 reward = self._reward()
+
         elif action != self.actions.none:
             assert False, "unknown action"
 
