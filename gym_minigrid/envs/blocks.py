@@ -192,18 +192,18 @@ register(
 ########
 
 register(
-    id='MiniGrid-Blocks-6x6-v0',
-    entry_point='gym_minigrid.envs:BlocksEnv6x6'
+    id='MiniGrid-BlocksFam-6x6-v0',
+    entry_point='gym_minigrid.envs:BlocksFamEnv6x6'
 )
 
 register(
-    id='MiniGrid-Blocks-8x8-v0',
-    entry_point='gym_minigrid.envs:BlocksEnv'
+    id='MiniGrid-BlocksFam-8x8-v0',
+    entry_point='gym_minigrid.envs:BlocksFamEnv'
 )
 
 register(
-    id='MiniGrid-Blocks-16x16-v0',
-    entry_point='gym_minigrid.envs:BlocksEnv16x16'
+    id='MiniGrid-BlocksFam-16x16-v0',
+    entry_point='gym_minigrid.envs:BlocksFamEnv16x16'
 )
 
 ########

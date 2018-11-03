@@ -542,7 +542,7 @@ class Grid:
                 if hasattr(v, 'is_open') and v.is_open:
                     array[i, j, 2] = 1
 
-        if agent_pos != None and agent_color != None:
+        if agent_pos is not None and agent_color is not None:
             array[agent_pos[0], agent_pos[0], 0] = OBJECT_TO_IDX['agent']
             array[agent_pos[0], agent_pos[0], 1] = COLOR_TO_IDX[agent_color]            
 

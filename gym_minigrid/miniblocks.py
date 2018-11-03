@@ -312,7 +312,7 @@ class MiniBlocksOtherEnv(MiniBlocksEnv):
 
     def __init__(self, *args, **kwargs):
         kwargs['agent_color'] = 'red'
-        super().__init__(kwargs)
+        super().__init__(**kwargs)
 
 class MiniBlocksGhostEnv(MiniBlocksEnv):
     """
@@ -323,4 +323,4 @@ class MiniBlocksGhostEnv(MiniBlocksEnv):
 
     def __init__(self, *args, **kwargs):
         kwargs['agent_color'] = None
-        super().__init__(kwargs)
+        super().__init__(**kwargs)
