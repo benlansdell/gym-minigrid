@@ -41,6 +41,35 @@ class BlocksEnv16x16(BlocksEnv):
     def __init__(self):
         super().__init__(size=16)
 
+class BlocksFamEnv(BlocksEnv):
+    """
+    Empty blocks environment, no obstacles, no reward
+    """
+
+    def _gen_grid(self, width, height):
+        # Create an empty grid
+        self.grid = Grid(width, height)
+
+        # Generate the surrounding walls
+        self.grid.wall_rect(0, 0, width, height)
+
+        # Place the agent in the top-left corner
+        self.start_pos = (1, 1)
+        self.start_dir = 0
+
+        #Add a block
+        self.grid.set(width - 4, height - 4, Block())
+
+        self.mission = "push block to goal square"
+
+class BlocksFamEnv6x6(BlocksFamEnv):
+    def __init__(self):
+        super().__init__(size=6)
+
+class BlocksFamEnv16x16(BlocksFamEnv):
+    def __init__(self):
+        super().__init__(size=16)
+
 register(
     id='MiniGrid-Blocks-6x6-v0',
     entry_point='gym_minigrid.envs:BlocksEnv6x6'
@@ -54,4 +83,19 @@ register(
 register(
     id='MiniGrid-Blocks-16x16-v0',
     entry_point='gym_minigrid.envs:BlocksEnv16x16'
+)
+
+register(
+    id='MiniGrid-BlocksFam-6x6-v0',
+    entry_point='gym_minigrid.envs:BlocksFamEnv6x6'
+)
+
+register(
+    id='MiniGrid-BlocksFam-8x8-v0',
+    entry_point='gym_minigrid.envs:BlocksFamEnv'
+)
+
+register(
+    id='MiniGrid-BlocksFam-16x16-v0',
+    entry_point='gym_minigrid.envs:BlocksFamEnv16x16'
 )

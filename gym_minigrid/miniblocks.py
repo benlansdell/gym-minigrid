@@ -40,7 +40,7 @@ class Other(WorldObj):
 
 class BlockGoal(WorldObj):
     def __init__(self):
-        super().__init__('blockgoal', 'red')
+        super().__init__('blockgoal', 'green')
 
     def can_overlap(self):
         return True
@@ -51,9 +51,9 @@ class BlockGoal(WorldObj):
     def render(self, r):
         self._set_color(r)
         r.drawPolygon([
-            (0          , CELL_PIXELS),
-            (CELL_PIXELS, CELL_PIXELS),
-            (CELL_PIXELS,           0),
+            (0          , CELL_PIXELS/2),
+            (CELL_PIXELS/2, CELL_PIXELS/2),
+            (CELL_PIXELS/2,           0),
             (0          ,           0)
         ])
 
@@ -186,7 +186,6 @@ class MiniBlocksEnv(MiniGridEnv):
                     self.agent_pos = fwd_pos
                 #Check if moved block to a block goal location
                 if fwd2_cell != None and fwd2_cell.type == 'blockgoal':
-                    print("Reached block goal")
                     self.grid.set(*fwd2_pos, fwd_cell)
                     self.grid.set(*fwd_pos, None)
                     # Move the agent forward
