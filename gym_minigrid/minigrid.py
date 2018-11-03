@@ -516,7 +516,7 @@ class Grid:
 
         r.pop()
 
-    def encode(self, render_invisible = False, agent_pos = None):
+    def encode(self, render_invisible = False, agent_pos = None, agent_color = None):
         """
         Produce a compact numpy encoding of the grid
         """
@@ -542,9 +542,9 @@ class Grid:
                 if hasattr(v, 'is_open') and v.is_open:
                     array[i, j, 2] = 1
 
-        if agent_pos is not None:
+        if agent_pos != None and agent_color != None:
             array[agent_pos[0], agent_pos[0], 0] = OBJECT_TO_IDX['agent']
-            array[agent_pos[0], agent_pos[0], 1] = COLOR_TO_IDX['blue']            
+            array[agent_pos[0], agent_pos[0], 1] = COLOR_TO_IDX[agent_color]            
 
         return array
 

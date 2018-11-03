@@ -86,7 +86,8 @@ class MiniBlocksEnv(MiniGridEnv):
         grid_size=16,
         max_steps=100,
         see_through_walls=True,
-        seed=1337
+        seed=1337,
+        agent_color='blue'
     ):
 
         # Action enumeration for this environment
@@ -118,6 +119,9 @@ class MiniBlocksEnv(MiniGridEnv):
         # Starting position and direction for the agent
         self.start_pos = None
         self.start_dir = None
+
+        self.agent_color = agent_color
+
         # Initialize the RNG
         self.seed(seed=seed)
         # Initialize the state
@@ -144,7 +148,7 @@ class MiniBlocksEnv(MiniGridEnv):
         """
         grid, vis_mask = self.gen_grid()
         # Encode the partially observable view into a numpy array
-        image = grid.encode(agent_pos = self.agent_pos)
+        image = grid.encode(agent_pos = self.agent_pos, agent_color = self.agent_color)
         # Observations are dictionaries containing:
         # - an image (partially observable view of the environment)
         obs = {
@@ -297,3 +301,26 @@ class MiniBlocksEnv(MiniGridEnv):
         new_array[self.agent_pos[1]][self.agent_pos[0]] = AGENT_DIR_TO_IDS[self.agent_dir]
 
         return "\n".join([" ".join(line) for line in new_array])
+
+
+class MiniBlocksOtherEnv(MiniBlocksEnv):
+    """
+    2D block world environment.
+
+    Render the agent different color.
+    """
+
+    def __init__(self, *args, **kwargs):
+        kwargs['agent_color'] = 'red'
+        super().__init__(kwargs)
+
+class MiniBlocksGhostEnv(MiniBlocksEnv):
+    """
+    2D block world environment.
+
+    Do not render the agent -- 'ghost' condition.
+    """
+
+    def __init__(self, *args, **kwargs):
+        kwargs['agent_color'] = None
+        super().__init__(kwargs)
