@@ -83,7 +83,7 @@ class ImgObsWrapper(gym.core.ObservationWrapper):
     def __init__(self, env):
         super().__init__(env)
         self.__dict__.update(vars(env))  # hack to pass values to super wrapper
-        self.observation_space = env.observation_space['image']
+        self.observation_space = env.observation_space.spaces['image']
 
     def observation(self, obs):
         return obs['image']
