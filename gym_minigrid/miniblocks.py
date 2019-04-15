@@ -157,11 +157,12 @@ class MiniBlocksEnv(MiniGridEnv):
         return obs
 
     def _blockreward(self):
-        return 1 - 0.9 * (self.step_count / self.max_steps)
+        #return 1 - 0.9 * (self.step_count / self.max_steps)
+        return 1
 
     def step(self, action):
         self.step_count += 1
-        reward = 0
+        reward = -1.0/self.max_steps
         done = False
 
         #Movements are in cardinal directions
