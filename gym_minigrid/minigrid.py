@@ -543,8 +543,8 @@ class Grid:
                     array[i, j, 2] = 1
 
         if agent_pos is not None and agent_color is not None:
-            array[agent_pos[1], agent_pos[0], 0] = OBJECT_TO_IDX['agent']
-            array[agent_pos[1], agent_pos[0], 1] = COLOR_TO_IDX[agent_color]            
+            array[agent_pos[0], agent_pos[1], 0] = OBJECT_TO_IDX['agent']
+            array[agent_pos[0], agent_pos[1], 1] = COLOR_TO_IDX[agent_color]            
 
         return array
 
