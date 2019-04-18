@@ -142,6 +142,59 @@ class MiniBlocksEnv(MiniGridEnv):
             vis_mask = np.ones(shape=(self.grid.width, self.grid.height), dtype=np.bool)
         return self.grid, vis_mask
 
+    def _find_random_startpos(self, num_tries = math.inf):
+        top = (0, 0)
+        size = (self.grid.width, self.grid.height)
+        num_tries = 0
+        while True:
+            # This is to handle with rare cases where rejection sampling
+            # gets stuck in an infinite loop
+            if num_tries > num_tries:
+                raise RecursionError('rejection sampling failed in place_obj')
+            num_tries += 1
+            pos = np.array((
+                self._rand_int(top[0], top[0] + size[0]),
+                self._rand_int(top[1], top[1] + size[1])
+            ))
+            # Don't place the object on top of another object
+            if self.grid.get(*pos) != None:
+                continue
+            break
+        self.start_pos = pos
+
+    #Override reset to add random starting position option
+    def reset(self, rand_agent_start = True):
+        # Generate a new random grid at the start of each episode
+        # To keep the same grid for each episode, call env.seed() with
+        # the same seed before calling env.reset()
+        self._gen_grid(self.grid_size, self.grid_size)
+
+        if rand_agent_start:
+            self._find_random_startpos()
+
+        # These fields should be defined by _gen_grid
+        assert self.start_pos is not None
+        assert self.start_dir is not None
+
+        # Check that the agent doesn't overlap with an object
+        start_cell = self.grid.get(*self.start_pos)
+        assert start_cell is None or start_cell.can_overlap()
+
+        # Place the agent in the starting position and direction
+        self.agent_pos = self.start_pos
+        self.agent_dir = self.start_dir
+
+        # Item picked up, being carried, initially nothing
+        self.carrying = None
+
+        # Step count since episode start
+        self.step_count = 0
+
+        # Return first observation
+        obs = self.gen_obs()
+        return obs
+
+
     def gen_obs(self):
         """
         Generate the agent's view (partially observable, low-resolution encoding)
@@ -161,6 +214,10 @@ class MiniBlocksEnv(MiniGridEnv):
         return 1
 
     def step(self, action):
+
+        if self.step_count > self.max_steps:
+            self.reset()
+
         self.step_count += 1
         reward = -1.0/self.max_steps
         done = False
@@ -196,6 +253,7 @@ class MiniBlocksEnv(MiniGridEnv):
                     # Move the agent forward
                     self.agent_pos = fwd_pos
                     done = True
+                    #print("Reached goal!")
                     reward = self._blockreward()
 
             #Agent-goal interactions

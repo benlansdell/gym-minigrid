@@ -1087,6 +1087,7 @@ class MiniGridEnv(gym.Env):
         return obs_cell is not None and obs_cell.type == world_cell.type
 
     def step(self, action):
+
         self.step_count += 1
 
         reward = 0
