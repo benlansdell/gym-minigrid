@@ -57,6 +57,25 @@ class BlockGoal(WorldObj):
             (0          ,           0)
         ])
 
+class VisibleBlockGoal(WorldObj):
+    def __init__(self):
+        super().__init__('visibleblockgoal', 'green')
+
+    def can_overlap(self):
+        return True
+
+    def visible(self):
+        return True 
+
+    def render(self, r):
+        self._set_color(r)
+        r.drawPolygon([
+            (0          , CELL_PIXELS/2),
+            (CELL_PIXELS/2, CELL_PIXELS/2),
+            (CELL_PIXELS/2,           0),
+            (0          ,           0)
+        ])
+
 class MiniBlocksEnv(MiniGridEnv):
     """
     2D block world environment.
@@ -305,7 +324,8 @@ class MiniBlocksEnv(MiniGridEnv):
             6: 'X',
             7: 'G',
             9: 'O',
-            10: 'K'
+            10: 'K',
+            13: 'T'
         }
 
         # Short string for opened door

@@ -52,7 +52,8 @@ OBJECT_TO_IDX = {
     'blockgoal'     : 9,
     'block'         : 10,
     'agent'         : 11,
-    'other'         : 12
+    'other'         : 12,
+    'visibleblockgoal' : 13
 }
 
 IDX_TO_OBJECT = dict(zip(OBJECT_TO_IDX.values(), OBJECT_TO_IDX.keys()))

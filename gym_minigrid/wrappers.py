@@ -88,6 +88,30 @@ class ImgObsWrapper(gym.core.ObservationWrapper):
     def observation(self, obs):
         return obs['image']
 
+class PadImgObsWrapper(gym.core.ObservationWrapper):
+    """
+    Use rgb image as the only observation output.
+
+    Pad to 16x16 if smaller than that.
+    """
+
+    def __init__(self, env):
+        super().__init__(env)
+        self.__dict__.update(vars(env))  # hack to pass values to super wrapper
+        self.nw, self.nh, self.nc = env.observation_space.spaces['image'].shape
+        new_size = (16, 16, self.nc)
+        self.observation_space = spaces.Box(
+            low=0,
+            high=255,
+            shape=new_size,
+            dtype='uint8'
+        )
+        self.padded = np.zeros(new_size)
+
+    def observation(self, obs):
+        orig_image = obs['image']
+        self.padded[0:self.nw, 0:self.nh, :] = orig_image
+        return self.padded
 
 class FullyObsWrapper(gym.core.ObservationWrapper):
     """
