@@ -233,6 +233,9 @@ class MiniBlocksEnv(MiniGridEnv):
         return 1
 
     def step(self, action):
+        return self._step(action)
+
+    def _step(self, action):
 
         if self.step_count > self.max_steps:
             self.reset()
