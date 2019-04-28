@@ -19,6 +19,25 @@ class Block(WorldObj):
             (0          ,           0)
         ])
 
+class BlockDoor(WorldObj):
+    def __init__(self):
+        super().__init__('blockdoor', 'red')
+
+    def can_overlap(self):
+        return False
+
+    def can_move(self):
+        return True
+
+    def render(self, r):
+        self._set_color(r)
+        r.drawPolygon([
+            (0          , CELL_PIXELS),
+            (CELL_PIXELS, CELL_PIXELS),
+            (CELL_PIXELS,           0),
+            (0          ,           0)
+        ])
+
 class Other(WorldObj):
     def __init__(self):
         super().__init__('block', 'purple')
@@ -241,6 +260,10 @@ class MiniBlocksEnv(MiniGridEnv):
         #return 1 - 0.9 * (self.step_count / self.max_steps)
         return 1
 
+    def _doorreward(self):
+        #return 1 - 0.9 * (self.step_count / self.max_steps)
+        return 0.5
+
     def step(self, action):
         return self._step(action)
 
@@ -264,7 +287,6 @@ class MiniBlocksEnv(MiniGridEnv):
 
             if fwd_cell == None or fwd_cell.can_overlap():
                 self.agent_pos = fwd_pos
-
             # Agent-block interactions
             if fwd_cell != None and fwd_cell.type == 'block':
                 # Get the position 2 in front of the agent
@@ -278,9 +300,37 @@ class MiniBlocksEnv(MiniGridEnv):
                     # Move the agent forward
                     self.agent_pos = fwd_pos
                 #Check if moved block to a block goal location
-                if fwd2_cell != None and fwd2_cell.type == 'blockgoal':
+                if fwd2_cell != None and (fwd2_cell.type == 'blockgoal' or fwd2_cell.type == 'visibleblockgoal'):
                     self.grid.set(*fwd2_pos, fwd_cell)
                     self.grid.set(*fwd_pos, None)
+                    # Move the agent forward
+                    self.agent_pos = fwd_pos
+                    done = True
+                    print("Reached goal!")
+                    reward = self._blockreward()
+                #If moved onto door, replace spot with a 'BlockDoor' object...
+                if fwd2_cell != None and fwd2_cell.type == 'door':
+                    self.grid.set(*fwd2_pos, BlockDoor())
+                    self.grid.set(*fwd_pos, None)
+                    # Move the agent forward
+                    self.agent_pos = fwd_pos
+                    reward = self._doorreward()
+            # Agent-block-door interactions
+            if fwd_cell != None and fwd_cell.type == 'blockdoor':
+                # Get the position 2 in front of the agent
+                fwd2_pos = self.front2_pos
+                # Get the contents of the cell 2 in front of the agent
+                fwd2_cell = self.grid.get(*fwd2_pos)
+                # Move the block forward if can do so
+                if fwd2_cell == None:
+                    self.grid.set(*fwd2_pos, Block())
+                    self.grid.set(*fwd_pos, Door('red', True))
+                    # Move the agent forward
+                    self.agent_pos = fwd_pos
+                #Check if moved block to a block goal location
+                if fwd2_cell != None and (fwd2_cell.type == 'blockgoal' or fwd2_cell.type == 'visibleblockgoal'):
+                    self.grid.set(*fwd2_pos, Block())
+                    self.grid.set(*fwd_pos, Door('red', True))
                     # Move the agent forward
                     self.agent_pos = fwd_pos
                     done = True
@@ -337,7 +387,8 @@ class MiniBlocksEnv(MiniGridEnv):
             7: 'G',
             9: 'O',
             10: 'K',
-            13: 'T'
+            13: 'T',
+            14: 'C'
         }
 
         # Short string for opened door
