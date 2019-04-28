@@ -29,24 +29,27 @@ class BlockMazeEnv(MiniBlocksEnv):
         d1 = 5+rand.randint(2)
         d2 = 5+rand.randint(2)
         offset = rand.randint(2)
-        rotate = rand.randint(3)
+        rotate = rand.randint(4)
         #Choose goal location in room 2
         bx, by = 2+rand.randint(d1-4), 2+rand.randint(d1-4)
         gx, gy = d1+rand.randint(d2-2), offset+1+rand.randint(d2-2)
         # Create an empty grids
         d3 = d1+d2
-        width = d3
-        height = d3
         #print(d1-1, offset, d1+d2-1, offset+d2, 'width', width, 'height', height)
-        self.grid = Grid(width, height)
+        self.grid = Grid(self.grid_size, self.grid_size)
+        self.rotate = rotate
+        self.viable_width = d3
+        self.viable_height = d3
+        #self.grid = Grid(width, height)
         #Make rooms
-        self.grid.wall_rect(0, 0, width, height)
+        self.grid.wall_rect(0, 0, self.grid_size, self.grid_size)
+        self.grid.wall_rect(0, 0, self.viable_width, self.viable_height)
         self.grid.wall_rect(0, 0, d1, d1)
-        self.grid.wall_rect(d1-1, offset, d2, d2)
+        self.grid.wall_rect(d1-1, offset, d2+1, d2)
         #Make doors between the rooms
-        self.grid.set(2,d1-1,None)
-        self.grid.set(d1+1,offset+d2-1,None)
-        self.grid.set(d1-1,min(offset+2, d1-2),None)
+        self.grid.set(2,d1-1,Door('red', True))
+        self.grid.set(d1+1,offset+d2-1,Door('red', True))
+        self.grid.set(d1-1,min(offset+2, d1-2),Door('red', True))
         #Place the goals and blocks
         self.grid.set(gx, gy, VisibleBlockGoal())
         self.grid.set(bx, by, Block())

@@ -372,7 +372,6 @@ class Grid:
 
         self.width = width
         self.height = height
-
         self.grid = [None] * width * height
 
     def __contains__(self, key):
@@ -698,6 +697,10 @@ class MiniGridEnv(gym.Env):
         self.grid_size = grid_size
         self.max_steps = max_steps
         self.see_through_walls = see_through_walls
+
+        self.viable_width = width
+        self.viable_height = height
+        self.rotate = 0
 
         # Starting position and direction for the agent
         self.start_pos = None

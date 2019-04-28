@@ -162,8 +162,17 @@ class MiniBlocksEnv(MiniGridEnv):
         return self.grid, vis_mask
 
     def _find_random_startpos(self, num_tries = math.inf):
-        top = (0, 0)
-        size = (self.grid.width, self.grid.height)
+
+        rot = self.rotate
+        if rot == 1:
+            top = (0, self.grid.height - self.viable_height)
+        elif rot == 2:
+            top = (self.grid.width - self.viable_width, self.grid.height - self.viable_height)
+        elif rot == 3:
+            top = (self.grid.width - self.viable_width, 0)
+        else:
+            top = (0, 0)
+        size = (self.viable_width, self.viable_height)
         num_tries = 0
         while True:
             # This is to handle with rare cases where rejection sampling
