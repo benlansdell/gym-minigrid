@@ -15,7 +15,7 @@ class BlockMazeEnv(MiniBlocksEnv):
     def __init__(self, size=16):
         super().__init__(
             grid_size=size,
-            max_steps=4*size*size,
+            max_steps=size*size/2,
             # Set this to True for maximum speed
             see_through_walls=True
         )
@@ -29,13 +29,15 @@ class BlockMazeEnv(MiniBlocksEnv):
         d1 = 5+rand.randint(2)
         d2 = 5+rand.randint(2)
         offset = rand.randint(2)
-        rotate = rand.randint(4)
+        rotate = 0
+        #rotate = rand.randint(4)
         #Choose goal location in room 2
         bx, by = 2+rand.randint(d1-4), 2+rand.randint(d1-4)
         gx, gy = d1+rand.randint(d2-2), offset+1+rand.randint(d2-2)
         # Create an empty grids
         d3 = d1+d2
         #print(d1-1, offset, d1+d2-1, offset+d2, 'width', width, 'height', height)
+        self.d1 = d1
         self.grid = Grid(self.grid_size, self.grid_size)
         self.rotate = rotate
         self.viable_width = d3
@@ -47,8 +49,13 @@ class BlockMazeEnv(MiniBlocksEnv):
         self.grid.wall_rect(0, 0, d1, d1)
         self.grid.wall_rect(d1-1, offset, d2+1, d2)
         #Make doors between the rooms
-        self.grid.set(2,d1-1,Door('red', True))
-        self.grid.set(d1+1,offset+d2-1,Door('red', True))
+        #Door from R1 to corridor
+        #self.grid.set(2,d1-1,Door('red', True))
+        self.grid.set(2,d1-1,None)
+        #Door from R2 to corridor
+        #self.grid.set(d1+1,offset+d2-1,Door('red', True))
+        self.grid.set(d1+1,offset+d2-1,None)
+        #Door from R1 to R2
         self.grid.set(d1-1,min(offset+2, d1-2),Door('red', True))
         #Place the goals and blocks
         self.grid.set(gx, gy, VisibleBlockGoal())
@@ -60,6 +67,39 @@ class BlockMazeEnv(MiniBlocksEnv):
         self.start_pos = (1, 1)
         self.start_dir = 0
         self.mission = "push block to goal square"
+
+    def _find_random_startpos(self, num_tries = math.inf):
+
+        rot = self.rotate
+        if rot == 1:
+            #top = (0, self.grid.height - self.viable_height)
+            top = (0, self.grid.height - self.d1)
+        elif rot == 2:
+            #top = (self.grid.width - self.viable_width, self.grid.height - self.viable_height)
+            top = (self.grid.width - self.d1, self.grid.height - self.d1)
+        elif rot == 3:
+            #top = (self.grid.width - self.viable_width, 0)
+            top = (self.grid.width - self.d1, 0)
+        else:
+            top = (0, 0)
+        #size = (self.viable_width, self.viable_height)
+        size = (self.d1, self.d1)
+        num_tries = 0
+        while True:
+            # This is to handle with rare cases where rejection sampling
+            # gets stuck in an infinite loop
+            if num_tries > num_tries:
+                raise RecursionError('rejection sampling failed in place_obj')
+            num_tries += 1
+            pos = np.array((
+                self._rand_int(top[0], top[0] + size[0]),
+                self._rand_int(top[1], top[1] + size[1])
+            ))
+            # Don't place the object on top of another object
+            if self.grid.get(*pos) != None:
+                continue
+            break
+        self.start_pos = pos
 
 ###########################
 ## Register environments ##

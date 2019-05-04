@@ -258,11 +258,11 @@ class MiniBlocksEnv(MiniGridEnv):
 
     def _blockreward(self):
         #return 1 - 0.9 * (self.step_count / self.max_steps)
-        return 1
+        return 2.0
 
     def _doorreward(self):
         #return 1 - 0.9 * (self.step_count / self.max_steps)
-        return 0.5
+        return 1.0
 
     def step(self, action):
         return self._step(action)
@@ -314,6 +314,7 @@ class MiniBlocksEnv(MiniGridEnv):
                     self.grid.set(*fwd_pos, None)
                     # Move the agent forward
                     self.agent_pos = fwd_pos
+                    print("Reached door!")
                     reward = self._doorreward()
             # Agent-block-door interactions
             if fwd_cell != None and fwd_cell.type == 'blockdoor':
@@ -334,7 +335,6 @@ class MiniBlocksEnv(MiniGridEnv):
                     # Move the agent forward
                     self.agent_pos = fwd_pos
                     done = True
-                    #print("Reached goal!")
                     reward = self._blockreward()
 
             #Agent-goal interactions
