@@ -113,6 +113,19 @@ class PadImgObsWrapper(gym.core.ObservationWrapper):
         self.padded[0:self.nw, 0:self.nh, :] = orig_image
         return self.padded
 
+class BatchWrapper(gym.core.ObservationWrapper):
+    """
+    Pad to add extra index at front for batches.
+    """
+
+    def __init__(self, env):
+        super().__init__(env)
+        self.__dict__.update(vars(env))  # hack to pass values to super wrapper
+
+    def observation(self, obs):
+        orig_image = obs['image']
+        return orig_image[None,:,:,:]
+
 class FullyObsWrapper(gym.core.ObservationWrapper):
     """
     Fully observable gridworld
